@@ -1,0 +1,1 @@
+export const VUE_URL = 'public/vue.min.js';

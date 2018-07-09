@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 
-import VC from './components/vue';
+import View from './components/vue';
 
-import VueTest from './vue-components/test/index.vue';
+import DemoReact from './components/demo';
+import DemoVue from './vue-components/demo/index.vue';
 
 class App extends Component {
   constructor(props) {
@@ -13,7 +14,8 @@ class App extends Component {
   render() {
     return (
       <div>
-        <VC vue={VueTest} />
+        <DemoReact />
+        <View vue={DemoVue} />
       </div>
     )
   }

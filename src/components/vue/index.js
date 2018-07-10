@@ -11,9 +11,9 @@ export default class extends Component {
 
   mountVue(element, Component, data) {
     const C = Vue.extend({
-      template: `<C />`,
+      template: `<Component />`,
       data: data,
-      components: { C: Component }
+      components: { Component }
     });
 
     new C().$mount(element);

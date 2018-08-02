@@ -8,8 +8,8 @@ export default class extends Component {
     this.table = new Table(props.th, props.td);
   }
 
-  handleClick(node) {
-    this.table.collapse(node);
+  handleClick(node, type) {
+    this.table.collapse(node, type);
     this.forceUpdate();
   }
 
@@ -23,9 +23,9 @@ export default class extends Component {
             <tr key={i}>
               {i === 0 && corner.map((th, k) => (
                 <th key={k} rowSpan={th.span}>
-                  {k < corner.length - 1 && (
+                  {th.collapseAble && (
                     <i className={`collapse${th.collapsed ? ' collapsed' : ''}`}
-                       onClick={this.handleClick}
+                       onClick={() => this.handleClick(th, 'all')}
                     />
                   )}
                   {th.key}
@@ -33,9 +33,9 @@ export default class extends Component {
               ))}
               {tr.map((th, j) => (
                 <th key={j} colSpan={th.span}>
-                  {i < topHead.length - 1 && (
+                  {th.collapseAble && (
                     <i className={`collapse${th.collapsed ? ' collapsed' : ''}`}
-                       onClick={this.handleClick}
+                       onClick={() => this.handleClick(th, 'y')}
                     />
                   )}
                   {th.key}
@@ -47,9 +47,9 @@ export default class extends Component {
             <tr>
               {leftHead[i] && leftHead[i].map((td, j) => (
                 <td key={j} rowSpan={td.span} className="left-head">
-                  {j < leftHead[i].length - 1 && (
+                  {td.collapseAble && (
                     <i className={`collapse${td.collapsed ? ' collapsed' : ''}`}
-                       onClick={() => this.handleClick(td)}
+                       onClick={() => this.handleClick(td, 'x')}
                     />
                   )}
                   {td.key}

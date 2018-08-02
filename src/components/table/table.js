@@ -1,7 +1,6 @@
 /**
  * Table
  * 接入数据(初始数据)：th, td
- * 基础数据(表格的折叠展开等操作)：th, td, leftTree, topTree
  * 返回数据(渲染图表数据)：leftHead, topHead, corner, body
  */
 export default class Table {
@@ -14,7 +13,7 @@ export default class Table {
       return [ th, td ];
     }
 
-    const _th = [...th], _td = [], body = {};
+    const _th = [...th], _td = [];
     thv.map(h => {
       const key = `k${parseInt(Math.random() * 1000000)}`;
       const idx = th.findIndex(d => d.type === 'y');
@@ -97,8 +96,11 @@ export default class Table {
       }
       return p;
     }, []).map(d => {
+      d.collapseAble = h.collapseAble;
       d.collapsed = h.collapsed && h.collapsed.indexOf(d.key) > -1;
-      if (d.collapsed) {
+      if (!_th.length) {
+        d.children = undefined;
+      } else if (d.collapsed) {
         d.children = Table.collapsedChildren(d, _th.length);
       } else {
         d.children = d.children && Table.toTree(_th, d.children, d, level + 1);
@@ -164,12 +166,13 @@ export default class Table {
     return tHead;
   }
 
-  static getCorner(th) {
-    const x = th.filter(d => d.type === 'x');
-    const span = th.filter(d => d.type === 'y').length;
-    return x.map(d => ({
-      key: d.name,
-      span
+  static getCorner(th, td, span) {
+    return th.map((h, i) => ({
+      key: h.name,
+      span,
+      level: i,
+      collapseAble: h.collapseAble,
+      collapsed: h.collapsed && !td.find(d => h.collapsed.indexOf(d[h.key]) === -1)
     }));
   }
 
@@ -220,35 +223,87 @@ export default class Table {
     return Table.getKey(node.parent) + (node.key || '');
   }
 
-  constructor(th = [], td = []) {
-    this.init(th, td);
-    this.update();
+  static collapsedAll(th, td) {
+    const idx = th.findIndex(h => h.collapsed && !td.find(d => h.collapsed.indexOf(d[h.key]) === -1));
+    if (idx > -1) {
+      return th.filter((h, i) => i <= idx).map(h => ({...h, collapseAble: true}));
+    }
+    return th.map((h, i) => ({
+      ...h,
+      collapseAble: i < th.length - 1
+    }));
   }
 
-  init(th, td) {
+  constructor(th, td) {
+    this.data(th, td);
+    this.update(this.th, this.td);
+  }
+
+  /**
+   * 更新表格数据
+   */
+  data(th = [], td = []) {
     [ th, td ] = Table.metricToDimension(th, td);
     this.td = Table.sort(th, td);
     this.th = th;
-
-    this.leftTree = Table.toTree(th.filter(d => d.type === 'x'), td) || [];
-    this.leftTree.map(Table.setSpan);
-
-    this.topTree = Table.toTree(th.filter(d => d.type === 'y'), td) || [];
-    this.topTree.map(Table.setSpan);
+    return this;
   }
 
-  update() {
-    this.leftHead = Table.toLeftHead(this.leftTree, this.td);
-    this.topHead = Table.toTopHead(this.topTree);
-    this.corner = Table.getCorner(this.th);
-    this.body = Table.getBody(this.leftTree, this.topTree, this.th, this.td);
-    console.log('table', this)
+  /**
+   * 更新表结构，在格式化后的th、td对象上进行属性的修改，进而改变表格的结构
+   */
+  update(th, td) {
+    const thx = Table.collapsedAll(th.filter(d => d.type === 'x'), td);
+    const leftTree = Table.toTree(thx, td) || [];
+    leftTree.map(Table.setSpan);
+
+    const thy = Table.collapsedAll(th.filter(d => d.type === 'y'), td);
+    const topTree = Table.toTree(thy, td) || [];
+    topTree.map(Table.setSpan);
+
+    this.leftHead = Table.toLeftHead(leftTree, td);
+    this.topHead = Table.toTopHead(topTree);
+    this.corner = Table.getCorner(thx, td, thy.length);
+    this.body = Table.getBody(leftTree, topTree, [...thx, ...thy], td);
   }
 
-  collapse(node) {
-    const n = Table.find(this.leftTree, (n) => n.level === node.level && n.key === node.key);
-    n.collapsed = true;
-    this.update();
+  /**
+   * 表格的折叠展开
+   */
+  collapse(node, type) {
+    if (type === 'all') {
+      this.th.filter(h => h.type === 'x').map((h, i) => {
+        if (node.level === i) {
+          if (node.collapsed) {
+            h.collapsed = [];
+          } else {
+            h.collapsed = this.td.reduce((p, n) => {
+              if (p.indexOf(n[h.key]) === -1) {
+                p.push(n[h.key]);
+              }
+              return p;
+            }, []);
+          }
+        }
+      });
+    } else {
+      this.th.filter(d => d.type === type).map((d, i) => {
+        if (node.level === i) {
+          if (d.collapsed) {
+            const idx = d.collapsed.findIndex(c => c === node.key);
+            if (idx > -1) {
+              d.collapsed.splice(idx, 1);
+            } else {
+              d.collapsed.push(node.key);
+            }
+          } else {
+            d.collapsed = [node.key];
+          }
+        }
+      });
+    }
+
+    this.update(this.th, this.td);
   }
 
 }

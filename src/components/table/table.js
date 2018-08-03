@@ -235,6 +235,8 @@ export default class Table {
     this.topHead = Table.getTopHead(topTree);
     this.corner = Table.getCorner(thx, td, thy.length);
     this.body = Table.getBody(leftTree, topTree, [...thx, ...thy], td);
+    this.leftHeadDeep = this.corner.length;
+    this.topHeadDeep = this.topHead.length;
   }
 
   collapse(node, type) {

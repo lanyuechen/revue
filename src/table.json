@@ -35,6 +35,7 @@
     {"k11ftww":"黑河","k310yqf":"黑龙江","k58avo8":"办公用品","k7c0ht4":"东北","kdoyivs":"纸张","kvi1pj5":33.73}
   ],
   "extra": [
-
+    {"type": "row", "formula": "D4 + sum(D5:D8, D9)", "name": "计算行"},
+    {"type": "col", "formula": "D4 + G4", "name": "计算列"}
   ]
 }

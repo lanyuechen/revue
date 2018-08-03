@@ -14,7 +14,7 @@ export default class extends Component {
   }
 
   render() {
-    const { leftHead, topHead, corner, body, extra } = this.table;
+    const { leftHead, topHead, corner, body } = this.table;
 
     return (
       <div className="one-table">

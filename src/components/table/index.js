@@ -10,10 +10,11 @@ export default class extends Component {
     this.table = new Table(props.th, props.td);
   }
 
-  handleClick(node, type) {
+  handleToggle = (e, node, type) => {
+    e.stopPropagation();
     this.table.collapse(node, type);
     this.forceUpdate();
-  }
+  };
 
   handleScroll = () => {
     const { container, thead } = this.refs;
@@ -26,17 +27,20 @@ export default class extends Component {
     });
   };
 
+  handleClick = (e, node) => {
+    this.props.onClick && this.props.onClick(e, node);
+  };
+
+  handleContextMenu = (e, node) => {
+    e.preventDefault();
+    this.props.onContextMenu && this.props.onContextMenu(e, node);
+  };
+
   render() {
     const { extra } = this.props;
     const { leftHead, topHead, corner, body } = this.table;
 
     const { row, col } = prepareFormula(extra, this.table);
-
-    const style = {
-      width: 300,
-      height: 200,
-      overflow: 'auto'
-    };
 
     return (
       <div className="one-table" ref="container" onScroll={this.handleScroll}>
@@ -45,17 +49,29 @@ export default class extends Component {
             {body && body.map((tr, i) => (
               <tr key={i}>
                 {leftHead[i] && leftHead[i].map((td, j) => (
-                  <td key={j} rowSpan={td.span} className="left-head">
+                  <td
+                    key={j}
+                    className="left-head"
+                    rowSpan={td.span}
+                    onClick={(e) => this.handleClick(e, td)}
+                    onContextMenu={(e) => this.handleContextMenu(e, td)}
+                  >
                     {td.collapseAble && (
                       <i className={`collapse${td.collapsed ? ' collapsed' : ''}`}
-                         onClick={() => this.handleClick(td, 'x')}
+                         onClick={(e) => this.handleToggle(e, td, 'x')}
                       />
                     )}
                     {td.key}
                   </td>
                 ))}
                 {tr.map((d, j) => (
-                  <td key={j}>{d.value}</td>
+                  <td
+                    key={j}
+                    onClick={(e) => this.handleClick(e, d)}
+                    onContextMenu={(e) => this.handleContextMenu(e, d)}
+                  >
+                    {d.value}
+                  </td>
                 ))}
                 {col && col.map((td, j) => (
                   <td key={j}>{td[i + 1].value}</td>
@@ -79,17 +95,22 @@ export default class extends Component {
                   <th key={k} rowSpan={th.span} className="left-head">
                     {th.collapseAble && (
                       <i className={`collapse${th.collapsed ? ' collapsed' : ''}`}
-                         onClick={() => this.handleClick(th, 'all')}
+                         onClick={(e) => this.handleToggle(e, th, 'all')}
                       />
                     )}
                     {th.key}
                   </th>
                 ))}
                 {tr.map((th, j) => (
-                  <th key={j} colSpan={th.span}>
+                  <th
+                    key={j}
+                    colSpan={th.span}
+                    onClick={(e) => this.handleClick(e, th)}
+                    onContextMenu={(e) => this.handleContextMenu(e, th)}
+                  >
                     {th.collapseAble && (
                       <i className={`collapse${th.collapsed ? ' collapsed' : ''}`}
-                         onClick={() => this.handleClick(th, 'y')}
+                         onClick={(e) => this.handleToggle(e, th, 'y')}
                       />
                     )}
                     {th.key}

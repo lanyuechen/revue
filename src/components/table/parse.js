@@ -51,14 +51,13 @@ export default function({ func, params, props }) {
       }
     } else {    //单元格,直接转换为数值
       const c = cellIdx(d);
-      const i = c[0];
-      const j = c[1];
+      const i = c[0] + offset[0];
+      const j = c[1] + offset[1];
       if (data[i] && data[i][j]) {
         values.push(data[i][j].value || 0);
       }
     }
   });
-  console.log('***********', values)
   return funcs[func](...values);
 }
 

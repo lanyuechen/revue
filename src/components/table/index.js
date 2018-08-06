@@ -36,7 +36,7 @@ export default class extends Component {
 
     formula = eval(formula).toFixed(2);
 
-    return formula;
+    return formula * 1;
   }
 
   renderExtra(extra = [], table) {
@@ -51,14 +51,15 @@ export default class extends Component {
       }))
     ]));
 
-    //todo body添加col数据
+    const body = table.body.map((d, i) => ([
+      ...d,
+      ...col.map(c => c[i + 1])
+    ]));
+
     const row = extra.filter(d => d.type === 'row').map(d => ([
       {key: d.name, span: table.leftHeadDeep},
-      ...table.body[0].map((b, i) => ({
-        value: this.calc(d.formula, table.body, [-table.topHeadDeep, i - table.leftHeadDeep])
-      })),
-      ...col.map((c, i) => ({
-        value: this.calc(d.formula, table.body, [-table.topHeadDeep, table.body[0].length + i - table.leftHeadDeep])
+      ...body[0].map((b, i) => ({
+        value: this.calc(d.formula, body, [-table.topHeadDeep, i - table.leftHeadDeep])
       }))
     ]));
 

@@ -1,7 +1,15 @@
 .one-table {
+  border: 1px solid #ddd;
+  border-top-width: 2px;
+  border-left-width: 2px;
   table {
-    border-top: 1px solid #ddd;
-    border-left: 1px solid #ddd;
+    width: 100%;
+    tbody {
+      transform: translate(0);
+    }
+    tr:nth-child(odd) {
+      background: #f8f8f8;
+    }
     th, td {
       border-bottom: 1px solid #ddd;
       border-right: 1px solid #ddd;
@@ -9,13 +17,14 @@
       position: relative;
       color: #666;
       font-size: 12px;
+      white-space: nowrap;
     }
     th, .left-head {
       background: #eceff1;
       text-align: center;
     }
-    tr:nth-child(odd) {
-      background: #f8f8f8;
+    .left-head {
+      z-index: 1;
     }
   }
   .collapse {

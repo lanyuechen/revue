@@ -34,6 +34,11 @@ export function toNum(code) {
   return total;
 }
 
+export function cellIdx(cell) {
+  const m = cell.match(/^([a-z]+)(\d+)$/i);
+  return [ m[2] - 1, toNum(m[1]) ];
+}
+
 export default function({ func, params, props }) {
   const { data, offset } = props;
   let values = [];
@@ -59,9 +64,4 @@ export default function({ func, params, props }) {
     }
   });
   return funcs[func](...values);
-}
-
-export function cellIdx(cell) {
-  const m = cell.match(/^([a-z]+)(\d+)$/i);
-  return [ m[2] - 1, toNum(m[1]) ];
 }
